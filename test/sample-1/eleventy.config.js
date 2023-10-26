@@ -5,6 +5,7 @@ module.exports = function (eleventyConfig) {
 
 	return {
 		dir: {
+			data: "data",
 			includes: "components",
 			layouts: "components",
 		}

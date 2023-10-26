@@ -9,9 +9,12 @@ obj:
 layout_attrs:
     id: wat
     class: w-full h-full
+json:
+    key: nope
+layout: Whatever
 ---
 
-<h1>${pkg.name}</h1>
+<h1>${pkg.name} - ${json.key}</h1>
 <${Layout} ...${layout_attrs}>
     <div ...${obj}>${
         array.map(item => html`<span>${item}</span>`)

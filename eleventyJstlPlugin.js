@@ -1,5 +1,5 @@
 const fg = require('fast-glob')
-
+const {stringify} = require("javascript-stringify");
 const path = require('node:path')
 
 function extract(data, where) {
@@ -11,14 +11,26 @@ function extract(data, where) {
     }
 }
 
+function objectToString(obj, skipKeys = ['collections']) {
+	return Object.keys(obj).map(key => {
+		if (skipKeys.includes(key)) return ''
+
+		return `const ${key} = ${stringify(obj[key], null, null, {circular: true})};`
+	}).join('\n')
+}
+
 function htmEval (html, page, data, components) {
 	try {
-		extract(data)
-		extract(components)
+		// extract(data)
+		// extract(components)
 
 		// const Layout = _ => '';
 
-		return eval(`html\`${page}\``)
+		return eval(`${
+			objectToString(data)
+		}${
+			objectToString(components)
+		}\n\n html\`${page}\``)
 	} catch (error) {
 		console.error(error)
 	}
@@ -47,7 +59,7 @@ module.exports = function (ec, options = {}) {
 		compileOptions: {},
 		init: async function(...args) {
 			const __xhtm = (await import('xhtm')).default
-			const __vhtml = (await import('vhtml')).default
+			const __vhtml = (await import('@small-tech/hyperscript-to-html-string')).default
 			html = __xhtm.bind(__vhtml)
 
 			const folders = [...new Set([ec.dir.layouts, ec.dir.includes, 'thisdoesntexistitsforglob'].filter(Boolean))]
@@ -68,8 +80,13 @@ module.exports = function (ec, options = {}) {
 		},
 		compile: async function(content, file) {
 			return async data => {
-				console.log(content, data)
-				const result = htmEval(html, content, data, components)
+				let result = htmEval(html, content, data, components)
+
+				if (Array.isArray(result))
+					result = result.join('')
+
+				result = result.replace('<!doctype html></!doctype>', '<!doctype html>');
+
 				return result;
 			}
 		}

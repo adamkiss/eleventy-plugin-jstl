@@ -1,10 +1,9 @@
 ---
 title: Another JSTL Page
+diff: {x: 1, y: 2}
 ---
 
 <h1>${pkg.name}</h1>
 <${Layout} class='now'>
-    <div ...${obj}>${
-        array.map(item => html`<span>${item}</span>`)
-    }</div>
+    <div ...${diff}></div>
 <//>
