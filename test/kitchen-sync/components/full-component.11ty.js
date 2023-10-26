@@ -1,4 +1,4 @@
-class Test {
+module.exports = class Test {
 	data() {
 		return {
 			myName: "Zach",
@@ -10,5 +10,3 @@ class Test {
 		return `# This is ${data.myName}`;
 	}
 }
-
-module.exports = Test;

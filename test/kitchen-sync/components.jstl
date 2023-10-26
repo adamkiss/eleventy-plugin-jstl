@@ -1,0 +1,6 @@
+---
+title: JSTL Components test
+layout: Simple
+---
+
+<div id=component-1></div>

@@ -1,0 +1,5 @@
+---
+layout: Functional
+---
+
+<main>${content}</main>

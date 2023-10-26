@@ -1,0 +1,16 @@
+---js
+{
+    title: 'Page with async data',
+    eleventyComputed: {
+        asyncTitle: async () => {
+            return await Promise.resolve('delectus aut autem')
+        }
+    },
+    fn: () => {
+        return 'wooot'
+    }
+}
+---
+
+<h1>${ title }</h1>
+<p>${ asyncTitle }</p>
