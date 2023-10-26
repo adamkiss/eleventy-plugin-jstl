@@ -13,7 +13,9 @@ json:
     key: nope
 layout: Whatever
 ---
-
+${
+    console.log('PAGE THIS', this)
+}
 <h1>${pkg.name} - ${json.key}</h1>
 
 <${Simple} ...${layout_attrs}>

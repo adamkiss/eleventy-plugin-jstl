@@ -4,6 +4,10 @@ const {stringify} = require("javascript-stringify");
 const path = require('node:path')
 const {readFile} = require('node:fs/promises')
 const TemplateEngine = require("@11ty/eleventy/src/Engines/TemplateEngine");
+const JavaScript = require("@11ty/eleventy/src/Engines/JavaScript");
+const ray = require('node-ray').ray
+const slugify = require('@11ty/eleventy/src/filters/Slugify')
+const url = require('@11ty/eleventy/src/filters/Url')
 
 function extract(data, where) {
     var g = where || (typeof global !== 'undefined' ? global : this);
@@ -12,6 +16,19 @@ function extract(data, where) {
           g[key] = data[key];
       }
     }
+}
+
+function addContextToJavaScriptFunction(data, fn) {
+	let CONTEXT_KEYS = ["eleventy", "page"];
+	return function (...args) {
+		for (let key of CONTEXT_KEYS) {
+			if (data && data[key]) {
+				this[key] = data[key];
+			}
+		}
+
+		return fn.call(this, ...args);
+	};
 }
 
 function objectToString(obj, skipKeys = ['collections']) {
@@ -35,7 +52,7 @@ function htmEval (html, source, data, components) {
 }
 
 function jsEval (source) {
-	console.log("JS eval", source)
+	// console.log("JS eval", source)
 
 	try {
 		return eval(`({children, ...props}) => {${source}}`)
@@ -70,6 +87,7 @@ module.exports = function (ec, options = {}) {
 
 	let html
 	let components = {}
+	let helpers = {}
 
 	ec.addTemplateFormats("jstl.js")
 	ec.addExtension("jstl.js", {
@@ -111,6 +129,7 @@ module.exports = function (ec, options = {}) {
 			}))).filter(Boolean)
 
 			components = Object.fromEntries(componentFunctions)
+
 		},
 		compile: async function(content, file) {
 			// Load dependencies
@@ -118,15 +137,18 @@ module.exports = function (ec, options = {}) {
 			// 	.map(async dep => await fg.glob(`${this.config.dir.includes}/**/${dep}.{jstl.js,jstl}`, {cwd: path.resolve(this.config.inputDir)}))
 			// const dependencies = (await Promise.all(dependenciesPromises)).flat()
 
+
 			return async data => {
+				let helpers = {}
 				const dataWithStuff = Object.assign({
 					'$f': {
 						attr: (...args) => require('clsx')(...args),
-						...ec.javascriptFunctions
-					}
+						...helpers
+					},
 				}, data)
+
 				try {
-					let result = htmEval(html, content, dataWithStuff, components)
+					let result = (htmEval.bind({benchmark: 'ohno'}))(html, content, dataWithStuff, components)
 
 					if (Array.isArray(result))
 						result = result.join('')
@@ -135,13 +157,14 @@ module.exports = function (ec, options = {}) {
 
 					return result;
 				} catch (error) {
-					return 'ERROR';
+					// return `ERROR: ${error}`;
+					throw error;
 				}
 			}
 		}
 	});
 
-	// if (!opts.skipAttrHelper) {
-	// 	ec.addFilter('attr', (...args) => require('clsx')(...args));
-	// }
+	if (!opts.skipAttrHelper) {
+		ec.addFilter('attr', (...args) => require('clsx')(...args));
+	}
 }
