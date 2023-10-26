@@ -1,0 +1,19 @@
+{
+  "name": "eleventy-plugin-jstl",
+  "version": "0.1.0",
+  "description": "",
+  "main": "eleventyJstlPlugin.js",
+  "scripts": {
+    "test": "node --test test/test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "vhtml": "^2.2.0",
+    "xhtm": "^1.6.3"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^2.0.1"
+  }
+}
