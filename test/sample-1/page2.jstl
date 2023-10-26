@@ -5,16 +5,14 @@ layout: Whatever
 ---
 
 <h1>${pkg.name}</h1>
-<${Layout} class='now'>
-    <div ...${diff}></div>
-
-    <pre>
-        1
-        2
-        3
-    </pre>
-
-    <${Box} class='now'>
-        <div ...${diff}></div>
-    <//>
+${'ahoy' /*<${Layout} ...${layout_attrs}>
+    <div ...${obj}>${
+        array.map(item => html`<span>${item}</span>`)
+    }</div>
 <//>
+
+<${Simple} ...${layout_attrs}>
+    <div ...${obj}>${
+        array.map(item => html`<span>${item}</span>`)
+    }</div>
+<//>*/}
