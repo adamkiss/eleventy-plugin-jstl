@@ -1,12 +1,12 @@
-let attr = {
+let attributes = {
 	...props,
 	'data-page-title': title,
-	'data-array': ['one', 'two'],
-	'classList': {one: true, two: false},
+	'data-array': $f.attr(['one', 'two']),
+	'class': $f.attr({one: true, two: false}),
 }
 
 let maybe = "x"
 
 return html`
-	<article ...${attr} data-test="one ${maybe} two" one=${true} two=${false}>${children}</article>
+	<article ...${attributes} data-test="one ${maybe} two" one=${true} two=${false}>${children}</article>
 `

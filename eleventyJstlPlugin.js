@@ -64,6 +64,10 @@ async function createComponent (name, path, html) {
 }
 
 module.exports = function (ec, options = {}) {
+	const opts = Object.assign({
+		skipAttrHelper: false
+	}, options)
+
 	let html
 	let components = {}
 
@@ -115,8 +119,14 @@ module.exports = function (ec, options = {}) {
 			// const dependencies = (await Promise.all(dependenciesPromises)).flat()
 
 			return async data => {
+				const dataWithStuff = Object.assign({
+					'$f': {
+						attr: (...args) => require('clsx')(...args),
+						...ec.javascriptFunctions
+					}
+				}, data)
 				try {
-					let result = htmEval(html, content, data, components)
+					let result = htmEval(html, content, dataWithStuff, components)
 
 					if (Array.isArray(result))
 						result = result.join('')
@@ -130,4 +140,8 @@ module.exports = function (ec, options = {}) {
 			}
 		}
 	});
+
+	// if (!opts.skipAttrHelper) {
+	// 	ec.addFilter('attr', (...args) => require('clsx')(...args));
+	// }
 }

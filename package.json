@@ -12,6 +12,7 @@
   "dependencies": {
     "@small-tech/hyperscript-to-html-string": "^1.0.0",
     "@small-tech/vhtml": "^1.0.0",
+    "clsx": "^2.0.0",
     "fast-glob": "^3.3.1",
     "javascript-stringify": "^2.1.0",
     "vhtml": "^2.2.0",
