@@ -1,5 +1,3 @@
-console.log('SIMPLE THIS', this)
-
 let attributes = {
 	...props,
 	'data-page-title': title,
