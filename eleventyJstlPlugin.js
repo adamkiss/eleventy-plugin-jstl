@@ -3,11 +3,13 @@ const fg = require('fast-glob')
 const {stringify} = require("javascript-stringify");
 const path = require('node:path')
 const {readFile} = require('node:fs/promises')
+const {writeFileSync} = require('node:fs')
 const TemplateEngine = require("@11ty/eleventy/src/Engines/TemplateEngine");
 const JavaScript = require("@11ty/eleventy/src/Engines/JavaScript");
 const ray = require('node-ray').ray
 const slugify = require('@11ty/eleventy/src/filters/Slugify')
 const url = require('@11ty/eleventy/src/filters/Url')
+const htmlPromise = require('./src/html.cjs')
 
 function extract(data, where) {
     var g = where || (typeof global !== 'undefined' ? global : this);
@@ -39,6 +41,7 @@ function objectToString(obj, skipKeys = ['collections']) {
 	}).join('\n')
 }
 
+let fileindex = 0
 function htmEval (html, source, data, components) {
 	try {
 		return eval(`${
@@ -47,7 +50,7 @@ function htmEval (html, source, data, components) {
 			objectToString(components)
 		}\n\n html\`${source}\``)
 	} catch (error) {
-		console.error(error)
+		return `JSTL ERROR: ${error}`
 	}
 }
 
@@ -57,7 +60,7 @@ function jsEval (source) {
 	try {
 		return eval(`({children, ...props}) => {${source}}`)
 	} catch (error) {
-		console.error(error)
+		return `JSTL.JS ERROR: ${error}`
 	}
 }
 
@@ -71,14 +74,33 @@ function jsEval (source) {
  */
 async function createComponent (name, path, html) {
 	try {
+		console.log(`creating ${name}`)
 		const source = await readFile(path, 'utf-8')
 		const component = jsEval(source)
 
 		return [name, component]
 	} catch (error) {
+		console.error(error)
 		return [name, new Function(`return "<jstl-error>${error.message}</jstl-error>"`)]
 	}
 }
+
+async function loadComponents(root, html) {
+	const componentFiles = await fg.glob(`${root}/**/*.{jstl.js,jstl}`)
+	const componentFunctions = (await Promise.all(componentFiles.map(async file => {
+		const {name, ext} = path.parse(file)
+
+		if (ext === '.js' && name.endsWith('.jstl')) {
+			const realName = name.replace('.jstl', '')
+			return await createComponent(realName, file, html)
+		}
+
+		return false
+	}))).filter(Boolean)
+
+	return Object.fromEntries(componentFunctions)
+}
+
 
 module.exports = function (ec, options = {}) {
 	const opts = Object.assign({
@@ -112,24 +134,7 @@ module.exports = function (ec, options = {}) {
 		outputFileExtension: "html",
 		compileOptions: {},
 		init: async function(...args) {
-			const __xhtm = (await import('xhtm')).default
-			const __vhtml = (await import('@small-tech/hyperscript-to-html-string')).default
-			html = __xhtm.bind(__vhtml)
-
-			const componentsDir = path.join(path.resolve(this.config.inputDir), this.config.dir.includes)
-			const componentFiles = await fg.glob(`${componentsDir}/**/*.{jstl.js,jstl}`)
-			const componentFunctions = (await Promise.all(componentFiles.map(async file => {
-				const [_, name, extension] = file.match(/\/([^\/\.]*?)\.(.*)$/)
-
-				if (extension === 'jstl.js') {
-					return await createComponent(name, file, html)
-				}
-
-				return false
-			}))).filter(Boolean)
-
-			components = Object.fromEntries(componentFunctions)
-
+			html = await htmlPromise()
 		},
 		compile: async function(content, file) {
 			// Load dependencies
@@ -139,30 +144,37 @@ module.exports = function (ec, options = {}) {
 
 
 			return async data => {
-				let helpers = {}
-				const dataWithStuff = Object.assign({
-					'$f': {
-						attr: (...args) => require('clsx')(...args),
-						...helpers
-					},
-				}, data)
+				const $data = Object.assign({}, data)
+				delete $data.eleventy
+				delete $data.collections
+
+				const dataWithStuff = Object.assign({$data}, data)
 
 				try {
-					let result = (htmEval.bind({benchmark: 'ohno'}))(html, content, dataWithStuff, components)
+					let result = (htmEval.bind(ec.javascriptFunctions))(html, content, dataWithStuff, components)
+
+					if (!result && options.warnOnEmptyResult) {
+						throw new Error(`Empty result for ${file}`)
+					}
 
 					if (Array.isArray(result))
 						result = result.join('')
 
-					result = result.replace('<!doctype html></!doctype>', '<!doctype html>');
+					result = result?.replace('<!doctype html></!doctype>', '<!doctype html>');
 
 					return result;
 				} catch (error) {
-					// return `ERROR: ${error}`;
-					throw error;
+					console.error(error)
+					return `ERROR: ${error}`;
 				}
 			}
 		}
 	});
+
+	ec.on('eleventy.before', async function ({inputDir, dir}) {
+		components = await loadComponents(path.join(path.resolve(inputDir), dir.includes), html)
+		components.subtest = components
+	})
 
 	if (!opts.skipAttrHelper) {
 		ec.addFilter('attr', (...args) => require('clsx')(...args));
