@@ -1,16 +1,21 @@
 ---
 title: Simple JSTL Page
 variable: 'JSTL'
-array:
-- 1
-- 2
-- 3
+array: [1, 2, 3]
 obj:
-	a: 1
-	b: 2
-	c: 3
+    a: 1
+    b: 2
+    c: 3
+layout_attrs:
+    id: wat
+    class: w-full h-full
 ---
 
-<div ...${obj = {}}>${
-	(array = [] || []) .map(item => `<span>${item}</span>`)
-}</div>
+<h1>${pkg.name}</h1>
+<${Layout} ...${layout_attrs}>
+    <div ...${obj}>${
+        array.map(item => html`<span>${item}</span>`)
+    }</div>
+<//>
+
+<${Whatever} class='easy'>ahoy<//>

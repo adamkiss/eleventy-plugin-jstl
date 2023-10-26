@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "fast-glob": "^3.3.1",
     "vhtml": "^2.2.0",
     "xhtm": "^1.6.3"
   },

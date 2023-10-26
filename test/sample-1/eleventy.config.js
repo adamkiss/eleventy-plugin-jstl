@@ -6,7 +6,7 @@ module.exports = function (eleventyConfig) {
 	return {
 		dir: {
 			includes: "components",
-			layouts: "layouts",
+			layouts: "components",
 		}
 	}
 }
