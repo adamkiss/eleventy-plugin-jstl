@@ -17,5 +17,3 @@ layout_attrs:
         array.map(item => html`<span>${item}</span>`)
     }</div>
 <//>
-
-<${Whatever} class='easy'>ahoy<//>
