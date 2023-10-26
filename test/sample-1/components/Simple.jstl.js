@@ -1,5 +1,12 @@
-let attr = {x: 'wat', ...props}
+let attr = {
+	...props,
+	'data-page-title': title,
+	'data-array': ['one', 'two'],
+	'classList': {one: true, two: false},
+}
+
+let maybe = "x"
 
 return html`
-	<SIMPLE ...${attr}>${children}</SIMPLE>
+	<article ...${attr} data-test="one ${maybe} two" one=${true} two=${false}>${children}</article>
 `

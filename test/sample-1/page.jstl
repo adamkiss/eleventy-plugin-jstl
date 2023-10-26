@@ -17,8 +17,6 @@ layout: Whatever
 <h1>${pkg.name} - ${json.key}</h1>
 
 <${Simple} ...${layout_attrs}>
-    <div ...${obj}>${
-        array.map(item => html`<span>${item}</span>`)
-    }</div>
+    <div ...${obj}>${array.map((item, index)=>html`<${Component}>${index.toString()}: ${item}<//>`)}</div>
 <//>
 
