@@ -1,5 +1,5 @@
-let attr = props
+let attr = {x: 'wat', ...props}
 
 return html`
-	<main ...${attr}>${children}</main>
+	<SIMPLE ...${attr}>${children}</SIMPLE>
 `

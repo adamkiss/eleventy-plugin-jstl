@@ -15,15 +15,10 @@ layout: Whatever
 ---
 
 <h1>${pkg.name} - ${json.key}</h1>
-${'ahoy' /*<${Layout} ...${layout_attrs}>
-    <div ...${obj}>${
-        array.map(item => html`<span>${item}</span>`)
-    }</div>
-<//>
 
 <${Simple} ...${layout_attrs}>
     <div ...${obj}>${
         array.map(item => html`<span>${item}</span>`)
     }</div>
-<//>*/}
+<//>
 

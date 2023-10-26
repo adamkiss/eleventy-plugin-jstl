@@ -2,6 +2,7 @@
 const fg = require('fast-glob')
 const {stringify} = require("javascript-stringify");
 const path = require('node:path')
+const {readFile} = require('node:fs/promises')
 const TemplateEngine = require("@11ty/eleventy/src/Engines/TemplateEngine");
 
 function extract(data, where) {
@@ -21,36 +22,44 @@ function objectToString(obj, skipKeys = ['collections']) {
 	}).join('\n')
 }
 
-function htmEval (html, page, data, components) {
+function htmEval (html, source, data, components) {
 	try {
 		return eval(`${
 			objectToString(data)
 		}${
 			objectToString(components)
-		}\n\n html\`${page}\``)
+		}\n\n html\`${source}\``)
 	} catch (error) {
 		console.error(error)
 	}
 }
 
-function jsWrap (name, path, html, page, data, components) {
-	try {
+function jsEval (source) {
+	console.log("JS eval", source)
 
+	try {
+		return eval(`({children, ...props}) => {${source}}`)
 	} catch (error) {
-		return []
+		console.error(error)
 	}
 }
 
-class Page {
-	constructor(content) {
-		this.__content = content
-	}
-	async render(html) {
-		try {
-			return eval(`html\`${this.__content}\``)
-		} catch (error) {
-			console.error(error)
-		}
+/**
+ * Create a component function out of simplified js source code
+ * by wrapping it in two functions: (html) => (data) => { ... }
+ * @param {string} name Name of the component
+ * @param {string} path absolute path to the file
+ * @param {function} html html tagged template function
+ * @returns
+ */
+async function createComponent (name, path, html) {
+	try {
+		const source = await readFile(path, 'utf-8')
+		const component = jsEval(source)
+
+		return [name, component]
+	} catch (error) {
+		return [name, new Function(`return "<jstl-error>${error.message}</jstl-error>"`)]
 	}
 }
 
@@ -85,28 +94,25 @@ module.exports = function (ec, options = {}) {
 			const __vhtml = (await import('@small-tech/hyperscript-to-html-string')).default
 			html = __xhtm.bind(__vhtml)
 
-			const folders = [...new Set([ec.dir.layouts, ec.dir.includes, 'thisdoesntexistitsforglob'].filter(Boolean))]
-			const componentFiles = await fg.glob([
-				`test/sample-1/{${folders.join(',')}}/**/*.jstl.js`,
-				`test/sample-1/{${folders.join(',')}}/**/*.jstl`,
-			]);
-// 			componentFiles.forEach(file => {
-// 				const [_, name, extension] = file.match(/\/([^\/\.]*?)\.(.*)$/)
-//
-// 				if (extension === 'jstl.js') {
-// 					components[name] = require(path.resolve(file))(html)
-// 					return
-// 				}
-//
-// 				// components[name] =
-// 			})
+			const componentsDir = path.join(path.resolve(this.config.inputDir), this.config.dir.includes)
+			const componentFiles = await fg.glob(`${componentsDir}/**/*.{jstl.js,jstl}`)
+			const componentFunctions = (await Promise.all(componentFiles.map(async file => {
+				const [_, name, extension] = file.match(/\/([^\/\.]*?)\.(.*)$/)
+
+				if (extension === 'jstl.js') {
+					return await createComponent(name, file, html)
+				}
+
+				return false
+			}))).filter(Boolean)
+
+			components = Object.fromEntries(componentFunctions)
 		},
 		compile: async function(content, file) {
 			// Load dependencies
-			const dependenciesPromises = ([...content.matchAll(/<\$\{([^\s\.]*?)\}/g)]?.map(m => m[1]) || [])
-				.map(async dep => await fg.glob(`${this.config.dir.includes}/**/${dep}.{jstl.js,jstl}`, {cwd: path.resolve(this.config.inputDir)}))
-			const dependencies = (await Promise.all(dependenciesPromises)).flat()
-			console.log(dependencies)
+			// const dependenciesPromises = ([...content.matchAll(/<\$\{([^\s\.]*?)\}/g)]?.map(m => m[1]) || [])
+			// 	.map(async dep => await fg.glob(`${this.config.dir.includes}/**/${dep}.{jstl.js,jstl}`, {cwd: path.resolve(this.config.inputDir)}))
+			// const dependencies = (await Promise.all(dependenciesPromises)).flat()
 
 			return async data => {
 				try {
