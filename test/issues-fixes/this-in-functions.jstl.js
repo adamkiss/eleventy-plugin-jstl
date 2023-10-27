@@ -2,4 +2,4 @@
 title: filters in jstl.js files
 //---
 
-return html`<${Include}><//>`
+return html`<${UsesAttr}><//>`
