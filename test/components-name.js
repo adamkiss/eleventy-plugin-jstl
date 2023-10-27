@@ -34,7 +34,7 @@ test("Create component name from path", () => {
 
 	assert.equal(
 		cm.parsePath('/imaginary/components/you/really/like/deep/subcomponent.jstl.js')?.component,
-		'you.really.like.deep.subcomponent'
+		'You.Really.Like.Deep.Subcomponent'
 	)
 	assert.equal(
 		cm.parsePath('/imaginary/components/x-subtract/x-subtractor.jstl.js')?.component,
@@ -42,7 +42,7 @@ test("Create component name from path", () => {
 	)
 	assert.equal(
 		cm.parsePath('/imaginary/components/DONT/touch/CASE.jstl.js')?.component,
-		'DONT.touch.CASE'
+		'DONT.Touch.CASE'
 	)
 
 	assert.equal(

@@ -75,14 +75,14 @@ class ComponentManager {
 
 	/**
 	 * Parse path into folder, name, all extensions, relative path and component name
-	 * Component name is relative path with dots, unless a part of the path is in kebab-case,
-	 * in which case _that part_ is converted to camelCase.
+	 * Component name is relative path with dots instead of slashes
+	 * If any part of path or name starts with lower case, _that part_ is converted to camelCase.
 	 *
 	 * - /ComponentName.jstl => ComponentName
 	 * - /component-name.jstl => ComponentName
 	 * - /CN.jstl => CN
-	 * - /imaginary/ComponentName.jstl => imaginary.ComponentName
-	 * - /imaginary/component-name.jstl => imaginary.ComponentName
+	 * - /imaginary/componentName.jstl => Imaginary.Componentname
+	 * - /imaginary/component-name.jstl => Imaginary.ComponentName
 	 * - /im-aginary/CN.jstl => ImAginary/CN
 	 *
 	 * @param {string} path
@@ -93,7 +93,11 @@ class ComponentManager {
 		parsed.relative = relative(this.#root, parsed.dir)
 		parsed.component = [...parsed.relative.split('/'), parsed.name]
 			.filter(part => part && part !== '')
-			.map(part => part.includes('-') ? upperFirst(camelCase(part)) : part)
+			.map(
+				part => part.slice(0, 1) !== part.slice(0, 1).toLocaleUpperCase()
+					? upperFirst(camelCase(part))
+					: part
+				)
 			.join('.')
 		return parsed
 	}
