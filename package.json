@@ -4,7 +4,7 @@
   "description": "",
   "main": "eleventy-plugin-jstl.cjs",
   "scripts": {
-    "test": "node --test-reporter dot --test test/*.js"
+    "test": "node --test-reporter dot --test test/components-name.js test/test.js"
   },
   "keywords": [],
   "author": "",
