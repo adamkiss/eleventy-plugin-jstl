@@ -2,19 +2,21 @@
   "name": "eleventy-plugin-jstl",
   "version": "0.1.0",
   "description": "",
-  "main": "eleventyJstlPlugin.js",
+  "main": "eleventy.config.js",
   "scripts": {
-    "test": "node --test test/test.js"
+    "test": "node --test-reporter dot --test test/*.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@11ty/eleventy-utils": "^1.0.2",
     "@small-tech/hyperscript-to-html-string": "^1.0.0",
     "@small-tech/vhtml": "^1.0.0",
     "clsx": "^2.0.0",
     "fast-glob": "^3.3.1",
     "javascript-stringify": "^2.1.0",
+    "lodash": "^4.17.21",
     "vhtml": "^2.2.0",
     "xhtm": "^1.6.3"
   },
