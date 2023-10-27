@@ -1,3 +1,11 @@
+---
+layout: 'prepend-php'
+php: |
+    include __DIR __ . 'hello-world.php';
+    $multiline = 'not-broken';
+---
+
 return html`
-	<body ...${props}>${children}</body>
+    <title>${title}</title>
+    <body ...${props}>${children}</body>
 `

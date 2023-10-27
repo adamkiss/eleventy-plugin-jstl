@@ -1,0 +1,8 @@
+---
+title: Props interaction data/component
+props:
+    ignore: this
+layout: uses-props
+---
+
+<${UsesProps} show="this">Hello<//>

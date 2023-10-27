@@ -2,4 +2,4 @@
 title: Uses complex .jstl.js component
 ---
 
-<${Complex} title="This really works">CONTENT<//>
+<${Complex}>CONTENT<//>

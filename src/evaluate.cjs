@@ -1,4 +1,5 @@
 const {objectEntriesToString, filteredEntries} = require('./utils.cjs')
+const {ray} = require('node-ray')
 
 function asBody({
 	html,

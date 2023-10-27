@@ -1,4 +1,8 @@
-const title = 'Uses complex2 .jstl.js component'
+//---js
+{
+	title: 'Title in JS frontmatter'
+}
+//---
 
 return html`<p>${json.key}</p>`
 

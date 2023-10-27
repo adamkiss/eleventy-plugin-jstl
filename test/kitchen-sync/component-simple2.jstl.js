@@ -1,3 +1,5 @@
-const title = 'Uses simple2 .jstl component'
+//---
+title: 'Uses simple2 .jstl.js component'
+//---
 
-return html`<${Simple2} title="This really works">CONTENT<//>`
+return html`<${Simple2}>CONTENT<//>`

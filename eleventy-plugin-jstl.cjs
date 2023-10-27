@@ -1,20 +1,11 @@
 // const { TemplatePath } = require("@11ty/eleventy-utils");
-const fg = require('fast-glob')
-const {stringify} = require("javascript-stringify");
-const path = require('node:path')
 const {readFile} = require('node:fs/promises')
-const {writeFileSync} = require('node:fs')
-const TemplateEngine = require("@11ty/eleventy/src/Engines/TemplateEngine");
-const JavaScript = require("@11ty/eleventy/src/Engines/JavaScript");
-const ray = require('node-ray/web').ray
-const slugify = require('@11ty/eleventy/src/filters/Slugify')
-const url = require('@11ty/eleventy/src/filters/Url')
+const matter = require('gray-matter')
+
 const loadHtmlTag = require('./src/html.cjs')
-const TemplatePath = require('@11ty/eleventy-utils')
 const ComponentManager = require('./src/ComponentManager.cjs')
 const evaluate = require('./src/evaluate.cjs')
 const {eleventyDataForPage} = require('./src/utils.cjs')
-const matter = require('gray-matter')
 
 module.exports = function (ec, options = {}) {
 
@@ -58,9 +49,13 @@ module.exports = function (ec, options = {}) {
 					// if data.content exists, it means we are in a layout call
 					// from eleventy, so we convert the "content"
 					// into hyperscript children array
-					let result = pageFunction({
-						children: ('content' in data) ? [data.content] : []
-					})
+					// if data.props exist, we're intentional about passing props
+					functionArgs = Object.assign(
+						{},
+						{children: ('content' in data) ? [data.content] : []},
+						data.props ?? {}
+					)
+					let result = pageFunction(functionArgs)
 
 					if (!result && options.warnOnEmptyResult) {
 						throw new Error(`Empty result for ${file}`)

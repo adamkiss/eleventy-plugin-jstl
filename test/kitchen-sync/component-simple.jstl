@@ -2,4 +2,4 @@
 title: Uses simple .jstl component
 ---
 
-<${Simple} title="This really works">CONTENT<//>
+<${Simple}>CONTENT<//>
