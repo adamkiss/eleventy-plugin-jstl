@@ -27,6 +27,9 @@ module.exports = function (ec, options = {}) {
 
 		components.root = [inputDir, dir.includes]
 		await components.load(html)
+
+		// add filters to evaluate context, because `asFunction` is an arrow function
+		Object.assign(evaluate, ec.javascriptFunctions)
 	})
 
 
@@ -43,7 +46,7 @@ module.exports = function (ec, options = {}) {
 				const pageFunction = evaluate.asFunction({
 					html, name, source, data,
 					components: components.get()
-				}).bind({...ec.javascriptFunctions})
+				})
 
 				try {
 					// if data.content exists, it means we are in a layout call
