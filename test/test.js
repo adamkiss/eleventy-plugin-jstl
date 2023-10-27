@@ -120,7 +120,6 @@ describe("Suite", async t => {
 				}
 			}
 
-			ray(r.find('props.jstl'));
 			assert.equal(r.content('props.jstl'), '<body ignore="this"><main show="this">Hello</main></body>');
 		}),
 	])
