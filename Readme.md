@@ -11,6 +11,10 @@ ADD SCREENSHOT
 - Less boilerplate than JS templates
 - Support for components
 
+## Known issues
+
+- No windows support
+
 ## Installation
 
 @TODO
