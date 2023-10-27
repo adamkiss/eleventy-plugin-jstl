@@ -1,0 +1,5 @@
+---
+title: Uses global data
+---
+
+<p>${json.key}</p>

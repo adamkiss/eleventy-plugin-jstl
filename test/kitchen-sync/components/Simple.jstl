@@ -1,9 +1,4 @@
----
-layout: prepend-php
-php: require_once __DIR__ . '/vendor/autoload.php';
----
-
-<!doctype html>
+${console.log('simple', props, children) || ''}<!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -11,7 +6,7 @@ php: require_once __DIR__ . '/vendor/autoload.php';
     <title>Document</title>
 </head>
 <body>
-    <h2>${title}</h2>
-    <main>${content}</main>
+    <h2>${props.title}</h2>
+    <main>${children}</main>
 </body>
 </html>

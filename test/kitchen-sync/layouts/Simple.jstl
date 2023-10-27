@@ -1,5 +1,8 @@
 ---
 layout: Functional
+props: {
+    content: string
+}
 ---
 
 <main>${content}</main>
