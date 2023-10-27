@@ -1,6 +1,6 @@
 {
   "name": "eleventy-plugin-jstl",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "",
   "main": "eleventy-plugin-jstl.cjs",
   "files": [
