@@ -3,22 +3,35 @@
   "version": "0.9.0",
   "description": "",
   "main": "eleventy-plugin-jstl.cjs",
+  "files": [
+    "eleventy-plugin-jstl.cjs",
+    "src",
+    "Readme.md",
+    "LICENSE"
+  ],
   "scripts": {
     "test": "node --test-reporter dot --test test/components-name.js test/test.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "eleventy",
+    "plugin",
+    "eleventy-plugin",
+    "templates",
+    "jstl",
+    "Hyperscript Tagged Markup",
+    "tagged template"
+  ],
+  "author": "Adam Kiss <https://adamkiss.com>",
+  "repository": "adamkiss/eleventy-plugin-jstl",
+  "license": "MIT",
   "dependencies": {
     "@11ty/eleventy-utils": "^1.0.2",
     "@small-tech/hyperscript-to-html-string": "^1.0.0",
-    "@small-tech/vhtml": "^1.0.0",
     "clsx": "^2.0.0",
     "fast-glob": "^3.3.1",
     "gray-matter": "^4.0.3",
     "javascript-stringify": "^2.1.0",
     "lodash": "^4.17.21",
-    "vhtml": "^2.2.0",
     "xhtm": "^1.6.3"
   },
   "devDependencies": {

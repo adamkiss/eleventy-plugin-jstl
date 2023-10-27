@@ -11,9 +11,6 @@ dependencies:
   '@small-tech/hyperscript-to-html-string':
     specifier: ^1.0.0
     version: 1.0.0
-  '@small-tech/vhtml':
-    specifier: ^1.0.0
-    version: 1.0.0
   clsx:
     specifier: ^2.0.0
     version: 2.0.0
@@ -29,9 +26,6 @@ dependencies:
   lodash:
     specifier: ^4.17.21
     version: 4.17.21
-  vhtml:
-    specifier: ^2.2.0
-    version: 2.2.0
   xhtm:
     specifier: ^1.6.3
     version: 1.6.3
@@ -207,10 +201,6 @@ packages:
 
   /@small-tech/hyperscript-to-html-string@1.0.0:
     resolution: {integrity: sha512-cIfwmQ1qGEM8RoPtWoqKwrPH03SGj/YDtrkV3qVXzpqyzT0sZ4OxvlSKhMK0zGZzlXGGz4NLUDLoNq4kgtOgnQ==}
-    dev: false
-
-  /@small-tech/vhtml@1.0.0:
-    resolution: {integrity: sha512-YavclyDqdgjkgq5lL25utwD1UXGNH+hcSZJD3LZvjF+3jIZbUa9JybdOYUaa3go9YTKC2EXDFIrDHXI5TQWIDg==}
     dev: false
 
   /@types/minimatch@3.0.5:
@@ -1604,10 +1594,6 @@ packages:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
     hasBin: true
     dev: true
-
-  /vhtml@2.2.0:
-    resolution: {integrity: sha512-TPXrXrxBOslRUVnlVkiAqhoXneiertIg86bdvzionrUYhEuiROvyPZNiiP6GIIJ2Q7oPNVyEtIx8gMAZZE9lCQ==}
-    dev: false
 
   /void-elements@3.1.0:
     resolution: {integrity: sha512-Dhxzh5HZuiHQhbvTW9AMetFfBHDMYpo23Uo9btPXgdYP+3T5S+p+jgNy7spra+veYhBP2dCSgxR/i2Y02h5/6w==}
