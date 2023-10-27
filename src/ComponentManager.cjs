@@ -25,6 +25,7 @@ class ComponentManager {
 	 */
 	async load(html) {
 		this.#html = html
+		this.#components = {}
 
 		const files = await glob(`${this.#root}/**/*.{jstl.js,jstl}`)
 		const wrapped = files.map(async file => {
