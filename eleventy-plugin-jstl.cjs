@@ -11,26 +11,10 @@ const slugify = require('@11ty/eleventy/src/filters/Slugify')
 const url = require('@11ty/eleventy/src/filters/Url')
 const loadHtmlTag = require('./src/html.cjs')
 const TemplatePath = require('@11ty/eleventy-utils')
-const ComponentManager = require('./src/ComponentManager')
-const evaluate = require('./src/evaluate')
-const {eleventyDataForPage} = require('./src/utils')
+const ComponentManager = require('./src/ComponentManager.cjs')
+const evaluate = require('./src/evaluate.cjs')
+const {eleventyDataForPage} = require('./src/utils.cjs')
 const matter = require('gray-matter')
-
-// function htmEval ({
-// 	html,
-// 	name = "UNKNOWN", source,
-// 	data = {}, components = {}
-// }) {
-// 	try {
-// 		return eval(`${
-// 			objectToString(data)
-// 		}${
-// 			objectToString(components)
-// 		}\n\n html\`${source}\``)
-// 	} catch (error) {
-// 		return `JSTL ERROR in ${name}: ${error}`
-// 	}
-// }
 
 module.exports = function (ec, options = {}) {
 
@@ -39,7 +23,8 @@ module.exports = function (ec, options = {}) {
 	const opts = Object.assign({
 		skipAttrHelper: false,
 		warnOnEmptyResult: true,
-		useCustomFrontmatterForJs: true
+		useCustomFrontmatterForJs: true,
+		keyForAllData: '$data'
 	}, options)
 
 	let html
@@ -58,13 +43,12 @@ module.exports = function (ec, options = {}) {
 	const javascriptExtension = {
 		outputFileExtension: "html",
 		compileOptions: {},
-		init: async function() {},
 		compile: async function(source, name) {
 			if (opts.useCustomFrontmatterForJs)
 				source = source.replace(/\/\/---.*?\/\/---\s+/gs, '')
 
 			return async eleventyData => {
-				const data = eleventyDataForPage(eleventyData)
+				const data = eleventyDataForPage(eleventyData, options)
 				const pageFunction = evaluate.asFunction({
 					html, name, source, data,
 					components: components.get()
@@ -109,55 +93,41 @@ module.exports = function (ec, options = {}) {
 
 
 	// JSTL EXTENSION  /////////////////////////////////////////////////////////////////
-//
-// 	ec.addTemplateFormats("jstl")
-// 	ec.addExtension("jstl", {
-// 		outputFileExtension: "html",
-// 		compileOptions: {},
-// 		init: async function(...args) {
-// 			if (!html) {
-// 				html = await loadHtmlTag()
-// 				// ec.addGlobalData('html', html)
-// 			}
-// 		},
-// 		compile: async function(content, file) {
-// 			// Load dependencies
-// 			// const dependenciesPromises = ([...content.matchAll(/<\$\{([^\s\.]*?)\}/g)]?.map(m => m[1]) || [])
-// 			// 	.map(async dep => await fg.glob(`${this.config.dir.includes}/**/${dep}.{jstl.js,jstl}`, {cwd: path.resolve(this.config.inputDir)}))
-// 			// const dependencies = (await Promise.all(dependenciesPromises)).flat()
-//
-// 			return async eleventyData => {
-// 				const $data = eleventyData
-// 				delete $data.eleventy
-// 				delete $data.collections
-// 				const data = Object.assign({$data}, eleventyData)
-//
-// 				try {
-// 					console.log(content)
-// 					let result = (htmEval.bind(ec.javascriptFunctions))({
-// 						html, name: file, source: content, data, components
-// 					})
-//
-// 					if (!result && options.warnOnEmptyResult) {
-// 						throw new Error(`Empty result for ${file}`)
-// 					}
-//
-// 					if (Array.isArray(result))
-// 						result = result.join('')
-//
-// 					result = result?.replace('<!doctype html></!doctype>', '<!doctype html>');
-//
-// 					console.log(result)
-//
-// 					return result;
-// 				} catch (error) {
-// 					console.error(error)
-// 					return `ERROR: ${error}`;
-// 				}
-// 			}
-// 		}
-// 	});
-//
+	const jstlExtension = {
+		outputFileExtension: "html",
+		compileOptions: {},
+		compile: async function(source, name) {
+			return async eleventyData => {
+				const data = eleventyDataForPage(eleventyData, options)
+
+				try {
+					let result = evaluate.asBody.bind(ec.javascriptFunctions)({
+						html, name, source, data, components: components.get()
+					})
+
+					if (!result && options.warnOnEmptyResult) {
+						throw new Error(`Empty result for ${file}`)
+					}
+
+					if (Array.isArray(result))
+						result = result.join('')
+
+						if (result)
+						result = result
+							.replace('<!doctype html></!doctype>', '<!doctype html>')
+							.replace('<!doctype html/>', '<!doctype html>')
+
+					return result;
+				} catch (error) {
+					console.error(error)
+					return `ERROR: ${error}`;
+				}
+			}
+		}
+	}
+	ec.addTemplateFormats("jstl")
+	ec.addExtension("jstl", jstlExtension);
+
 
 
 	// HELPERS //////////////////////////////////////////////////////////////////////////

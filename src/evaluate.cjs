@@ -1,12 +1,25 @@
-const {stringify} = require("javascript-stringify");
-const {objectEntriesToString, filteredEntries} = require('./utils')
+const {objectEntriesToString, filteredEntries} = require('./utils.cjs')
 
-function asBody(
+function asBody({
 	html,
 	name = "UNKNOWN",
 	source = '',
-) {
+	data = {},
+	components = {}
+}) {
+	html = html
+	try {
+		const ___eval___component = [
+			objectEntriesToString(filteredEntries(components)),
+			objectEntriesToString(filteredEntries(data, ['collection'])),
+			`; html\`${source}\``
+		].join('');
 
+		return eval(___eval___component)
+	} catch (error) {
+		console.error(error)
+		return `JSTL.TPL ERROR in ${name}: ${error}`
+	}
 }
 
 

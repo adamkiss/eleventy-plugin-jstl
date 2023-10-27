@@ -2,10 +2,10 @@ const {relative} = require('path')
 const {readFile} = require('fs/promises')
 const {absolutePath} = require('@11ty/eleventy-utils/src/TemplatePath')
 const {glob} = require('fast-glob')
-const {pathParse} = require('./utils')
+const {pathParse} = require('./utils.cjs')
 const {camelCase, upperFirst} = require('lodash/string')
 const {set} = require('lodash/object')
-const evaluate = require('./evaluate')
+const evaluate = require('./evaluate.cjs')
 
 class ComponentManager {
 	#html = null

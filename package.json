@@ -2,7 +2,7 @@
   "name": "eleventy-plugin-jstl",
   "version": "0.1.0",
   "description": "",
-  "main": "eleventy.config.js",
+  "main": "eleventy-plugin-jstl.cjs",
   "scripts": {
     "test": "node --test-reporter dot --test test/*.js"
   },

@@ -47,11 +47,11 @@ module.exports.filteredEntries = filteredEntries
  * @param {Object} data eleventy data object
  * @returns object
  */
-function eleventyDataForPage(data) {
+function eleventyDataForPage(data, {keyForAllData = '$data'} = {}) {
 	const {collections, eleventy, ...rest} = data
 	return {
 		eleventy,
-		$data: {...rest},
+		[keyForAllData]: {...rest},
 		...rest,
 	}
 }

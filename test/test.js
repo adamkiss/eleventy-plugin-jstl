@@ -8,12 +8,14 @@ describe("Reorganisation", async () => {
 			configPath: "./test/reorganisation/eleventy.config.js"
 		});
 		const results = await elev.toJSON();
+		console.log(results)
 		assert.equal(results.length, 1);
-		assert.equal(results[0]?.contents, '<p>hello</p>')
+		assert.equal(results[0]?.content, '<p>Reorganisation</p>')
 	})
 })
 
-describe.skip("Async", async () => {
+
+describe("Async", async () => {
 	await Promise.all([
 		it('outputs eleventyComputed value', async () => {
 			const elev = new Eleventy('./test/async-simple/', './test/async-simple/_site', {
@@ -22,7 +24,7 @@ describe.skip("Async", async () => {
 			const results = await elev.toJSON();
 			assert.equal(results.length, 2);
 			results.forEach(page => {
-				assert.equal(page.content?.trim(), "\n<h1>Page with async data</h1>\n<p>delectus aut autem</p>\n");
+				assert.equal(page.content?.replace(/\n/g, ''), "<h1>Page with async data</h1><p>delectus aut autem</p>");
 			});
 		})
 	]);

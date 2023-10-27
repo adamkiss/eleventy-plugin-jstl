@@ -1,7 +1,7 @@
 const {test} = require('node:test')
 const assert = require('node:assert/strict')
 
-const ComponentManager = require('../src/ComponentManager')
+const ComponentManager = require('../src/ComponentManager.cjs')
 
 test("Create component name from path", () => {
 	const cm = new ComponentManager('/imaginary/components')
