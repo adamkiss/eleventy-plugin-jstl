@@ -1,0 +1,6 @@
+---
+title: Uses async component simple
+---
+
+<h1>${ title }</h1>
+<${Async} />

@@ -1,7 +1,7 @@
 const {objectEntriesToString, filteredEntries} = require('./utils.cjs')
 const {ray} = require('node-ray')
 
-function asBody({
+async function asBody({
 	html,
 	name = "UNKNOWN",
 	source = '',
@@ -11,12 +11,13 @@ function asBody({
 	html = html
 	try {
 		const ___eval___component = [
+			`async () => {`,
 			objectEntriesToString(filteredEntries(components)),
 			objectEntriesToString(filteredEntries(data, ['collection'])),
-			`; html\`${source}\``
+			`; return await html\`${source}\`}`
 		].join('');
 
-		return eval(___eval___component)
+		return await eval(___eval___component)()
 	} catch (error) {
 		console.error(error)
 		return `JSTL.TPL ERROR in ${name}: ${error}`
@@ -36,7 +37,7 @@ function asFunction({
 		const ___eval___component = [
 			objectEntriesToString(filteredEntries(components)),
 			objectEntriesToString(filteredEntries(data, ['collection'])),
-			`;({children, ...props}) => {${source}}`
+			`;${source.includes('await') ? 'async ': '' }({children, ...props}) => {${source}}`
 		].join('');
 
 		return eval(___eval___component)

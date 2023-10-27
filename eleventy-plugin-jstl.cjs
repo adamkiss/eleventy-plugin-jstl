@@ -58,7 +58,7 @@ module.exports = function (ec, options = {}) {
 						{children: ('content' in data) ? [data.content] : []},
 						data.props ?? {}
 					)
-					let result = pageFunction(functionArgs)
+					let result = await pageFunction(functionArgs)
 
 					if (!result && options.warnOnEmptyResult) {
 						throw new Error(`Empty result for ${file}`)
@@ -99,7 +99,7 @@ module.exports = function (ec, options = {}) {
 				const data = eleventyDataForPage(eleventyData, options)
 
 				try {
-					let result = evaluate.asBody.bind(ec.javascriptFunctions)({
+					let result = await evaluate.asBody.bind(ec.javascriptFunctions)({
 						html, name, source, data, components: components.get()
 					})
 
