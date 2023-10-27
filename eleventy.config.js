@@ -14,37 +14,8 @@ const TemplatePath = require('@11ty/eleventy-utils')
 const ComponentManager = require('./src/ComponentManager')
 const evaluate = require('./src/evaluate')
 const {eleventyDataForPage} = require('./src/utils')
+const matter = require('gray-matter')
 
-// function extract(data, where) {
-//     var g = where || (typeof global !== 'undefined' ? global : this);
-//     for (var key in data){
-//       if (data.hasOwnProperty(key)){
-//           g[key] = data[key];
-//       }
-//     }
-// }
-//
-// function addContextToJavaScriptFunction(data, fn) {
-// 	let CONTEXT_KEYS = ["eleventy", "page"];
-// 	return function (...args) {
-// 		for (let key of CONTEXT_KEYS) {
-// 			if (data && data[key]) {
-// 				this[key] = data[key];
-// 			}
-// 		}
-//
-// 		return fn.call(this, ...args);
-// 	};
-// }
-//
-// function objectToString(obj, skipKeys = ['collections']) {
-// 	return Object.keys(obj).map(key => {
-// 		if (skipKeys.includes(key)) return ''
-//
-// 		return `const ${key} = ${stringify(obj[key], null, null, {circular: true})};`
-// 	}).join('\n')
-// }
-//
 // function htmEval ({
 // 	html,
 // 	name = "UNKNOWN", source,
@@ -60,50 +31,15 @@ const {eleventyDataForPage} = require('./src/utils')
 // 		return `JSTL ERROR in ${name}: ${error}`
 // 	}
 // }
-//
-// function pageJsEval({name, source, html, components = {}, data = {}}) {
-// 	try {
-// 		return eval(`${
-// 			objectToString(data)
-// 		}${
-// 			objectToString(components)
-// 		};({children, ...props}) => {${source}}`)
-// 	} catch (error) {
-// 		return `JSTL.JS ERROR in ${name}: ${error}`
-// 	}
-// }
-//
-// function jsEval ({name, source, html, components = {}}) {
-// 	try {
-// 		return eval(`({children, ...props}) => {${source}}`)
-// 	} catch (error) {
-// 		return `JSTL.JS ERROR in ${name}: ${error}`
-// 	}
-// }
-//
-
-// async function createComponent ({name, file, html, wrapWithReturn = false}) {
-// 	try {
-// 		const source = await readFile(file, 'utf-8')
-//
-// 		const component = jsEval({
-// 			name,
-// 			source: !wrapWithReturn ? source : `return html\`\n${source}\``,
-// 			html
-// 		})
-// 		ray(name, stringify(component))
-//
-// 		return [name, component]
-// 	} catch (error) {
-// 		console.error(error)
-// 		return [name, new Function(`return "<div>jstl-error: ${name}: ${error.message}</div>"`)]
-// 	}
-// }
 
 module.exports = function (ec, options = {}) {
+
+
+	// OPTIONS //////////////////////////////////////////////////////////////////////////
 	const opts = Object.assign({
 		skipAttrHelper: false,
 		warnOnEmptyResult: true,
+		useCustomFrontmatterForJs: true
 	}, options)
 
 	let html
@@ -117,12 +53,16 @@ module.exports = function (ec, options = {}) {
 		await components.load(html)
 	})
 
-	ec.addTemplateFormats("jstl.js")
-	ec.addExtension("jstl.js", {
+
+	// JSTL.JS EXTENSION  //////////////////////////////////////////////////////////////
+	const javascriptExtension = {
 		outputFileExtension: "html",
 		compileOptions: {},
 		init: async function() {},
 		compile: async function(source, name) {
+			if (opts.useCustomFrontmatterForJs)
+				source = source.replace(/\/\/---.*?\/\/---\s+/gs, '')
+
 			return async eleventyData => {
 				const data = eleventyDataForPage(eleventyData)
 				const pageFunction = evaluate.asFunction({
@@ -131,9 +71,12 @@ module.exports = function (ec, options = {}) {
 				}).bind({...ec.javascriptFunctions})
 
 				try {
-					// if data.content exists, it means we are in a layout call from eleventy,
-					// so we convert the "content" into hyperscript children array
-					let result = pageFunction({children: ('content' in data) ? [data.content] : []})
+					// if data.content exists, it means we are in a layout call
+					// from eleventy, so we convert the "content"
+					// into hyperscript children array
+					let result = pageFunction({
+						children: ('content' in data) ? [data.content] : []
+					})
 
 					if (!result && options.warnOnEmptyResult) {
 						throw new Error(`Empty result for ${file}`)
@@ -142,7 +85,10 @@ module.exports = function (ec, options = {}) {
 					if (Array.isArray(result))
 						result = result.join('')
 
-					result = result?.replace('<!doctype html></!doctype>', '<!doctype html>');
+					if (result)
+						result = result
+							.replace('<!doctype html></!doctype>', '<!doctype html>')
+							.replace('<!doctype html/>', '<!doctype html>')
 
 					return result;
 				} catch (error) {
@@ -151,7 +97,18 @@ module.exports = function (ec, options = {}) {
 				}
 			}
 		}
-	})
+	}
+	if (opts.useCustomFrontmatterForJs)
+		javascriptExtension.getData = async function(file) {
+			const content = await readFile(file, 'utf-8')
+			const {data} = matter(content, {delimiters: ['//---', '//---']})
+			return data
+		}
+	ec.addTemplateFormats("jstl.js")
+	ec.addExtension("jstl.js", javascriptExtension)
+
+
+	// JSTL EXTENSION  /////////////////////////////////////////////////////////////////
 //
 // 	ec.addTemplateFormats("jstl")
 // 	ec.addExtension("jstl", {
@@ -201,7 +158,13 @@ module.exports = function (ec, options = {}) {
 // 		}
 // 	});
 //
-// 	if (!opts.skipAttrHelper) {
-// 		ec.addFilter('attr', (...args) => require('clsx')(...args));
-// 	}
+
+
+	// HELPERS //////////////////////////////////////////////////////////////////////////
+	if (opts.skipFilters === true)
+		return
+
+	if (!opts.skipFilterAttr) {
+		ec.addFilter('attr', (...args) => require('clsx')(...args));
+	}
 }
