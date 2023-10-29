@@ -18,18 +18,12 @@ module.exports = function (ec, options = {}) {
 		keyForAllData: '$data'
 	}, options)
 
-	let html
 	const components = new ComponentManager()
 
 	// Load HTML tag and Components, asynchronously, before everything
 	ec.on('eleventy.before', async function ({inputDir, dir}) {
-		if (!html) html = await loadHtmlTag()
-
 		components.root = [inputDir, dir.includes]
-		await components.load(html)
-
-		// add filters to evaluate context, because `asFunction` is an arrow function
-		Object.assign(evaluate, ec.javascriptFunctions)
+		components.reset()
 	})
 
 
@@ -42,23 +36,18 @@ module.exports = function (ec, options = {}) {
 				source = source.replace(/\/\/---.*?\/\/---\s+/gs, '')
 
 			return async eleventyData => {
-				const data = eleventyDataForPage(eleventyData, options)
-				const pageFunction = evaluate.asFunction({
-					html, name, source, data,
-					components: components.get()
-				})
-
 				try {
-					// if data.content exists, it means we are in a layout call
-					// from eleventy, so we convert the "content"
-					// into hyperscript children array
-					// if data.props exist, we're intentional about passing props
-					functionArgs = Object.assign(
-						{},
-						{children: ('content' in data) ? [data.content] : []},
-						data.props ?? {}
-					)
-					let result = await pageFunction(functionArgs)
+					// Load data and components; if 'data.content', we're assume we're in a layout
+					// and we'll convert the content into hyperscript children array
+					const data = eleventyDataForPage(eleventyData, options)
+					await components.load()
+					data.children = ('content' in data) ? [data.content] : [];
+
+					let result = await evaluate.retrieveJavascript({
+						name, source, data,
+						components: components.get(),
+						filters: ec.javascriptFunctions
+					})
 
 					if (!result && options.warnOnEmptyResult) {
 						throw new Error(`Empty result for ${file}`)
@@ -96,13 +85,18 @@ module.exports = function (ec, options = {}) {
 		compileOptions: {},
 		compile: async function(source, name) {
 			return async eleventyData => {
-				const data = eleventyDataForPage(eleventyData, options)
-
 				try {
-					let bodyFn = evaluate.asBody.bind(ec.javascriptFunctions)({
-						html, name, source, data, components: components.get()
+					// Load data and components; if 'data.content', we're assume we're in a layout
+					// and we'll convert the content into hyperscript children array
+					const data = eleventyDataForPage(eleventyData, options)
+					await components.load()
+					data.children = ('content' in data) ? [data.content] : [];
+
+					let result = await evaluate.retrieveText({
+						name, source, data,
+						components: components.get(),
+						filters: ec.javascriptFunctions
 					})
-					let result = await bodyFn()
 
 					if (!result && options.warnOnEmptyResult) {
 						throw new Error(`Empty result for ${file}`)

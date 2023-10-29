@@ -1,1 +1,1 @@
-return html`<p>${title}</p>`
+return html`<${Subcomponent} ...${props}>${title}<//>`
