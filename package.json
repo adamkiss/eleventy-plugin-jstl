@@ -30,7 +30,6 @@
     "clsx": "^2.0.0",
     "fast-glob": "^3.3.1",
     "gray-matter": "^4.0.3",
-    "javascript-stringify": "^2.1.0",
     "lodash": "^4.17.21",
     "node-retrieve-globals": "^2.0.8",
     "xhtm": "^1.6.3"

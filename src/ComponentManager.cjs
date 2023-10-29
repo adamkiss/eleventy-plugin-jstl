@@ -3,14 +3,13 @@ const {readFile} = require('fs/promises')
 const {absolutePath} = require('@11ty/eleventy-utils/src/TemplatePath')
 const {glob} = require('fast-glob')
 const {pathParse} = require('./utils.cjs')
-const {camelCase, upperFirst} = require('lodash/string')
+const {camelCase, upperFirst, default: string} = require('lodash/string')
 const {set} = require('lodash/object')
 const evaluate = require('./evaluate.cjs')
 
 class ComponentManager {
-	#html = null
 	#root = null
-	#components = {}
+	#components = null
 
 	constructor(...rootParts) {
 		this.root = rootParts
@@ -18,13 +17,10 @@ class ComponentManager {
 
 	/**
 	 * Load components asynchronously
-	 *
-	 * @note We must pass the html here, so we can inject it into the component functions
-	 *
-	 * @param {function} html tagged template function
 	 */
-	async load(html) {
-		this.#html = html
+	async load() {
+		if (this.#components !== null) return
+
 		this.#components = {}
 
 		const files = await glob(`${this.#root}/**/*.{jstl.js,jstl}`)
@@ -34,13 +30,28 @@ class ComponentManager {
 			return [component, fn]
 		});
 
-		(await Promise.all(wrapped))
+		const _ = (await Promise.all(wrapped))
 			.filter(Boolean)
-			.map(([component, fn]) => {set(this.#components, component, fn)})
+			.map(([component, fn]) => {
+				set(this.#components, component, fn)
+				return [component, fn]
+			})
+	}
+
+	/**
+	 * Reset components - to be called before build to not have dead code
+	 * floating around
+	 *
+	 * @returns void
+	 */
+	reset() {
+		this.#components = null
 	}
 
 	get() {
-		return this.#components;
+		return Object.entries(this.#components)
+			.map(([key, value]) => `const ${key} = ${value}`)
+			.join(';\n')
 	}
 
 	get root() {
@@ -59,16 +70,26 @@ class ComponentManager {
 	 * @param {string} name Name of the component
 	 * @param {string} file absolute path to the file
 	 * @param {string} ext extension of the file
+	 * @param {object} thisArg Eleventy filters to add as "this"
 	 * @returns
 	 */
 	async createComponent(name, file, ext) {
 		const source = await readFile(file, 'utf-8')
+		const type = (ext === 'jstl.js') ? 'javascript' : 'text'
 
-		const component = evaluate.asFunction({
-			html: this.#html,
-			name,
-			source: (ext === 'jstl.js') ? source : `return html\`\n${source}\``,
-		});
+		// const component = await evaluate.generateFunction({
+		// 	type: (ext === 'jstl.js') ? 'javascript' : 'text',
+		// 	name,
+		// 	source,
+		// 	data
+		// })
+
+		const component = {
+			text: source => `
+				({children, ...props} = {}) => {return html\`${source}\`}`,
+			javascript: source => `
+				({children, ...props} = {}) => {${source}}`,
+		}[type](source)
 
 		return component
 	}
