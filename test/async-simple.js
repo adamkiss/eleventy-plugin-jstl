@@ -1,7 +1,7 @@
 const {describe, it} = require("node:test");
 const assert = require("node:assert/strict");
 const Eleventy = require("@11ty/eleventy");
-const Results = require("./_Results")
+const Results = require("./_helpers/Results")
 const {ray} = require("node-ray");
 
 describe("Async", async () => {

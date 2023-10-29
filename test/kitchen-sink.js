@@ -1,14 +1,14 @@
 const {describe, it} = require("node:test");
 const assert = require("node:assert/strict");
 const Eleventy = require("@11ty/eleventy");
-const Results = require("./_Results")
+const Results = require("./_helpers/Results")
 const {ray} = require("node-ray");
 
 describe("Kitchen sync", async t => {
 	await Promise.all([
 		it('compiles jstl files', async t => {
-			const elev = new Eleventy('./test/kitchen-sync/', './test/kitchen-sync/_site', {
-				configPath: "./test/kitchen-sync/eleventy.config.js"
+			const elev = new Eleventy('./test/kitchen-sink/', './test/kitchen-sink/_site', {
+				configPath: "./test/kitchen-sink/eleventy.config.js"
 			});
 			const r = new Results(await elev.toJSON());
 
@@ -24,8 +24,8 @@ describe("Kitchen sync", async t => {
 		}),
 
 		it('compiles jstl.js files', async t => {
-			const elev = new Eleventy('./test/kitchen-sync/', './test/kitchen-sync/_site', {
-				configPath: "./test/kitchen-sync/eleventy.config.js"
+			const elev = new Eleventy('./test/kitchen-sink/', './test/kitchen-sink/_site', {
+				configPath: "./test/kitchen-sink/eleventy.config.js"
 			});
 			const results = await elev.toJSON();
 			const r = {
@@ -50,8 +50,8 @@ describe("Kitchen sync", async t => {
 		}),
 
 		it('supports layouts all the way', async t => {
-			const elev = new Eleventy('./test/kitchen-sync/', './test/kitchen-sync/_site', {
-				configPath: "./test/kitchen-sync/eleventy.config.js"
+			const elev = new Eleventy('./test/kitchen-sink/', './test/kitchen-sink/_site', {
+				configPath: "./test/kitchen-sink/eleventy.config.js"
 			});
 			const results = await elev.toJSON();
 			const r = {
@@ -68,8 +68,8 @@ describe("Kitchen sync", async t => {
 		}),
 
 		it('uses props from html in components and data in layouts', async t => {
-			const elev = new Eleventy('./test/kitchen-sync/', './test/kitchen-sync/_site', {
-				configPath: "./test/kitchen-sync/eleventy.config.js"
+			const elev = new Eleventy('./test/kitchen-sink/', './test/kitchen-sink/_site', {
+				configPath: "./test/kitchen-sink/eleventy.config.js"
 			});
 			const results = await elev.toJSON();
 			const r = {
