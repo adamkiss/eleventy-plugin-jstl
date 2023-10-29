@@ -2,7 +2,7 @@
 title: Uses async component complex
 //---
 
-return html`
+return await html`
     <h1>${ title }</h1>
     <${Async} />
 `
