@@ -1,0 +1,11 @@
+---js
+{
+    title: 'Page with async data',
+    eleventyComputed: {
+        unasyncData: async (data) => await data.AsyncData()
+    }
+}
+---
+
+<h1>${ title }</h1>
+<p>${ unasyncData }</p>

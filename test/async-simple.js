@@ -11,9 +11,12 @@ describe("Async", async () => {
 				configPath: "./test/async-simple/eleventy.config.js"
 			});
 			const r = new Results(await elev.toJSON());
-			assert.equal(r.all.length, 3);
+			assert.equal(r.all.length, 5);
 			assert.equal(r.content('index.njk').replace(/\n/g, ''), "<h1>Page with async data</h1><p>delectus aut autem</p>");
 			assert.equal(r.content('page.jstl'), "<h1>Page with async data</h1><p>delectus aut autem</p>");
+			assert.equal(r.content('async-data-hack.jstl'), "<h1>Page with async data</h1><p>async</p>");
+			assert.equal(r.content('async-data-fn.jstl.js'), "<h1>Page with async data</h1><p>async</p>");
+			assert.equal(r.content('async-data-fn2.jstl'), "<h1>Page with async data</h1><p>async</p>");
 		})
 	]);
 })

@@ -3,4 +3,4 @@ title: Page with async data
 ---
 
 <h1>${ title }</h1>
-<p>${ AsyncData() }</p>
+<p>${ await AsyncData() }</p>

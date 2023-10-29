@@ -1,6 +1,8 @@
 const {objectEntriesToString, filteredEntries} = require('./utils.cjs')
 const {ray} = require('node-ray')
 
+const {writeFileSync} = require('fs')
+
 function asBody({
 	html,
 	name = "UNKNOWN",
@@ -11,11 +13,13 @@ function asBody({
 	html = html
 	try {
 		const ___eval___component = [
+			`${source.includes('await') ? 'async ': '' } () => {`,
 			objectEntriesToString(filteredEntries(components)),
 			objectEntriesToString(filteredEntries(data, ['collection'])),
-			`; html\`${source}\``
+			`return html\`${source}\`}`
 		].join('');
-
+		// ray(___eval___component);
+		// writeFileSync(`./${name.split('/').pop()}.js`, ___eval___component);
 		return eval(___eval___component)
 	} catch (error) {
 		console.error(error)
@@ -36,9 +40,10 @@ function asFunction({
 		const ___eval___component = [
 			objectEntriesToString(filteredEntries(components)),
 			objectEntriesToString(filteredEntries(data, ['collection'])),
-			`;({children, ...props}) => {${source}}`
+			`${source.includes('await') ? 'async ': '' }({children, ...props}) => {${source}}`
 		].join('');
-
+		// ray(___eval___component)
+		// writeFileSync(`./${name.split('/').pop()}.js`, ___eval___component);
 		return eval(___eval___component)
 	} catch (error) {
 		console.error(error)
