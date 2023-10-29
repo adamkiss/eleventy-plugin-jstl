@@ -1,1 +1,1 @@
-return html`<p>${this.attr({yes: true, no: false})}</p>`
+return html`<p>${html.attr({yes: true, no: false})}</p>`
