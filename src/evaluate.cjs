@@ -40,7 +40,7 @@ function asFunction({
 		const ___eval___component = [
 			objectEntriesToString(filteredEntries(components)),
 			objectEntriesToString(filteredEntries(data, ['collection'])),
-			`${source.includes('await') ? 'async ': '' }({children, ...props}) => {${source}}`
+			`${source.includes('await') ? 'async ': '' }({children, ...props} = {}) => {${source}}`
 		].join('');
 		// ray(___eval___component)
 		// writeFileSync(`./${name.split('/').pop()}.js`, ___eval___component);
