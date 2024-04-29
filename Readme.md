@@ -1,3 +1,6 @@
+> [!WARNING]  
+> 🛑🛑🛑 Discontinued
+
 # Eleventy Javascript Template Literals plugin
 
 JSTL is back in Eleventy! Sort of. Uses [xhtm](https://github.com/dy/xhtm) and [@small-tech/hyperscript-to-html-string](https://codeberg.org/small-tech/hyperscript-to-html-string) to give you back simple templates without having to learn arcane syntax.
